@@ -19,13 +19,15 @@ type AJProvider (config : TypeProviderConfig) as this =
     
     let makeCategoryType (categoryName: string) =
         let categorie = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
-
+        
         let indicators = query {for i in healthRecords do
-                                where (i.IndicatorCategory = categoryName) 
-                                select i.Indicator 
-                                distinct}
+                                where (i.IndicatorCategory = categoryName)}
+        
+        let indicatorNames = query {for i in indicators do
+                                    select i.Indicator 
+                                    distinct}
 
-        for i in indicators do
+        for i in indicatorNames do
             categorie.AddMembersDelayed(fun () -> 
                 let indicator = ProvidedTypeDefinition(i, Some typeof<obj>)
                 indicator.AddMembersDelayed (fun () -> 
