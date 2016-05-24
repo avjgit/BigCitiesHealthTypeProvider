@@ -17,35 +17,44 @@ type AJProvider (config : TypeProviderConfig) as this =
     let namespace_ = "BigCitiesHealth"
     let assembly = Assembly.GetExecutingAssembly()
     
+    let categories = query {for i in healthRecords do 
+                            select i.IndicatorCategory 
+                            distinct}
+
     let makeCategoryType (categoryName: string) =
         let categorie = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
-        
+    
         let indicators = query {for i in healthRecords do
                                 where (i.IndicatorCategory = categoryName)}
         
         let indicatorNames = query {for i in indicators do
                                     select i.Indicator 
                                     distinct}
-
-        for i in indicatorNames do
-            categorie.AddMembersDelayed(fun () -> 
-                let indicator = ProvidedTypeDefinition(i, Some typeof<obj>)
-                indicator.AddMembersDelayed (fun () -> 
-                    let indicatorValue = 
-                        let iValue = "indicator value"
-                        let p = ProvidedProperty(
-                                    propertyName = "Value", 
-                                    propertyType = typeof<string>, 
-                                    IsStatic=true,
-                                    GetterCode= (fun args -> <@@ iValue @@>))
-                        p
-                    [indicatorValue])
-                [indicator])
+        
+        for iName in indicatorNames do
+            let cityNames = query {for i in indicators do
+                                            select i.Place 
+                                            distinct}
+            for cityName in cityNames do
+                categorie.AddMembersDelayed(fun () -> 
+                    let indicator = ProvidedTypeDefinition(iName, Some typeof<obj>)                
+                    indicator.AddMembersDelayed (fun () -> 
+                        let city = ProvidedTypeDefinition(cityName, Some typeof<obj>)                
+                        city.AddMembersDelayed (fun () -> 
+                            let indicatorValue = 
+                                let iValue = "indicator value"
+                                let p = ProvidedProperty(
+                                            propertyName = "Value", 
+                                            propertyType = typeof<string>, 
+                                            IsStatic=true,
+                                            GetterCode= (fun args -> <@@ iValue @@>))
+                                p
+                            [indicatorValue])
+                        [city])
+                    [indicator])
+        
         categorie
 
-    let categories = query {for i in healthRecords do 
-                            select i.IndicatorCategory 
-                            distinct}
     let dataTypes = [for c in categories -> makeCategoryType c]
     do this.AddNamespace(namespace_, dataTypes)
 
