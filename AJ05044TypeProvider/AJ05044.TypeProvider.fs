@@ -18,10 +18,10 @@ type AJProvider (config : TypeProviderConfig) as this =
     let categoriesNames = query {for i in healthRecords do select i.IndicatorCategory } |> Seq.distinct
     let makeCategoryType (categoryName: string) =
         let category = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
-        let categoryData = query {for i in healthRecords do where (i.IndicatorCategory = categoryName)}
+        let categoryData = healthRecords |> Seq.filter (fun r -> r.IndicatorCategory = categoryName)
         let indicatorsNames = query {for i in categoryData do select i.Indicator} |> Seq.distinct
         for indicatorName in indicatorsNames do
-            let indicatorData = query {for i in categoryData do where (i.Indicator = indicatorName)}
+            let indicatorData = categoryData |> Seq.filter (fun r -> r.Indicator = indicatorName)
             let citiesNames = query {for i in indicatorData do select i.Place} |> Seq.distinct
             for cityName in citiesNames do
                 category.AddMembersDelayed(fun () -> 
