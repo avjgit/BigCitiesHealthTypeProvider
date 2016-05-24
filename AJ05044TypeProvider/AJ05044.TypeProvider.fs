@@ -40,17 +40,22 @@ type AJProvider (config : TypeProviderConfig) as this =
                                         let gender = ProvidedTypeDefinition(genderName, Some typeof<obj>)           
                                         let genderData = yearData |> Seq.filter (fun r -> r.Gender = genderName)
                                         let racesNames = query {for i in genderData do select i.RaceEthnicity} |> Seq.distinct
-                                        for racesName in racesNames do
+                                        for raceName in racesNames do
                                             gender.AddMembersDelayed (fun () ->  
-                                                let measurement = 
-                                                    let value = "measurement value"
-                                                    let property = ProvidedProperty(
-                                                                    propertyName = "Measurement", 
-                                                                    propertyType = typeof<string>, 
-                                                                    IsStatic=true,
-                                                                    GetterCode= (fun args -> <@@ value @@>))
-                                                    property
-                                                [measurement])
+                                                let race = ProvidedTypeDefinition(raceName, Some typeof<obj>)           
+                                                let raceData = genderData |> Seq.filter (fun r -> r.RaceEthnicity = raceName)
+                                                for d in raceData do
+                                                    race.AddMembersDelayed (fun () ->  
+                                                        let measurement = 
+                                                            let value = d.Value
+                                                            let property = ProvidedProperty(
+                                                                            propertyName = "Value", 
+                                                                            propertyType = typeof<decimal>, 
+                                                                            IsStatic=true,
+                                                                            GetterCode= (fun args -> <@@ value @@>))
+                                                            property
+                                                        [measurement])
+                                                [race])
                                         [gender])
                                 [year])
                         [city])
