@@ -1,0 +1,10 @@
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\AJ05044TypeProvider.XML
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\AJ05044TypeProvider.dll
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\AJ05044TypeProvider.pdb
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\FSharp.Core.dll
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\FSharp.Core.xml
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\obj\Debug\AJ05044TypeProvider.dll
+c:\users\a\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\obj\Debug\AJ05044TypeProvider.pdb
+C:\Users\A\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\FSharp.Data.dll
+C:\Users\A\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\FSharp.Data.pdb
+C:\Users\A\documents\visual studio 2015\Projects\AJ05044TypeProvider\AJ05044TypeProvider\bin\Debug\FSharp.Data.xml
