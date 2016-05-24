@@ -16,13 +16,13 @@ type AJProvider (config : TypeProviderConfig) as this =
     let namespace_ = "BigCitiesHealth"
     let assembly = Assembly.GetExecutingAssembly()
     let categoriesNames = query {for i in healthRecords do select i.IndicatorCategory } |> Seq.distinct
-    
     let makeCategoryType (categoryName: string) =
         let category = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
         let categoryData = query {for i in healthRecords do where (i.IndicatorCategory = categoryName)}
         let indicatorsNames = query {for i in categoryData do select i.Indicator} |> Seq.distinct
         for indicatorName in indicatorsNames do
-            let citiesNames = query {for i in categoryData do select i.Place} |> Seq.distinct
+            let indicatorData = query {for i in categoryData do where (i.Indicator = indicatorName)}
+            let citiesNames = query {for i in indicatorData do select i.Place} |> Seq.distinct
             for cityName in citiesNames do
                 category.AddMembersDelayed(fun () -> 
                     let indicator = ProvidedTypeDefinition(indicatorName, Some typeof<obj>)                
@@ -41,7 +41,6 @@ type AJProvider (config : TypeProviderConfig) as this =
                         [city])
                     [indicator])
         category
-
     let dataTypes = [for c in categoriesNames -> makeCategoryType c]
     do this.AddNamespace(namespace_, dataTypes)
 
