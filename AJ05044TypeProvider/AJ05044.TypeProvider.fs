@@ -37,15 +37,21 @@ type AJProvider (config : TypeProviderConfig) as this =
                                 let gendersNames = query {for i in yearData do select i.Gender} |> Seq.distinct
                                 for genderName in gendersNames do
                                     year.AddMembersDelayed (fun () ->  
-                                        let measurement = 
-                                            let value = "measurement value"
-                                            let property = ProvidedProperty(
-                                                            propertyName = "Measurement", 
-                                                            propertyType = typeof<string>, 
-                                                            IsStatic=true,
-                                                            GetterCode= (fun args -> <@@ value @@>))
-                                            property
-                                        [measurement])
+                                        let gender = ProvidedTypeDefinition(genderName, Some typeof<obj>)           
+                                        let genderData = yearData |> Seq.filter (fun r -> r.Gender = genderName)
+                                        let racesNames = query {for i in genderData do select i.RaceEthnicity} |> Seq.distinct
+                                        for racesName in gendersNames do
+                                            year.AddMembersDelayed (fun () ->  
+                                                let measurement = 
+                                                    let value = "measurement value"
+                                                    let property = ProvidedProperty(
+                                                                    propertyName = "Measurement", 
+                                                                    propertyType = typeof<string>, 
+                                                                    IsStatic=true,
+                                                                    GetterCode= (fun args -> <@@ value @@>))
+                                                    property
+                                                [measurement])
+                                        [gender])
                                 [year])
                         [city])
                 [indicator])
