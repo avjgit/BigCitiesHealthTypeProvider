@@ -29,18 +29,24 @@ type AJProvider (config : TypeProviderConfig) as this =
                     indicator.AddMembersDelayed (fun () ->  
                         let city = ProvidedTypeDefinition(cityName, Some typeof<obj>)           
                         let cityData = indicatorData |> Seq.filter (fun r -> r.Place = cityName)
-                        let yearsNames = query {for i in cityData do select i.Year} |> Seq.distinct
+                        let yearsNames = query {for i in cityData do select (string i.Year)} |> Seq.distinct
                         for yearName in yearsNames do
                             city.AddMembersDelayed (fun () ->  
-                                let measurement = 
-                                    let value = "measurement value"
-                                    let property = ProvidedProperty(
-                                                    propertyName = "Measurement", 
-                                                    propertyType = typeof<string>, 
-                                                    IsStatic=true,
-                                                    GetterCode= (fun args -> <@@ value @@>))
-                                    property
-                                [measurement])
+                                let year = ProvidedTypeDefinition(yearName, Some typeof<obj>)           
+                                let yearData = cityData |> Seq.filter (fun r -> string r.Year = yearName)
+                                let gendersNames = query {for i in yearData do select i.Gender} |> Seq.distinct
+                                for genderName in gendersNames do
+                                    year.AddMembersDelayed (fun () ->  
+                                        let measurement = 
+                                            let value = "measurement value"
+                                            let property = ProvidedProperty(
+                                                            propertyName = "Measurement", 
+                                                            propertyType = typeof<string>, 
+                                                            IsStatic=true,
+                                                            GetterCode= (fun args -> <@@ value @@>))
+                                            property
+                                        [measurement])
+                                [year])
                         [city])
                 [indicator])
         category
