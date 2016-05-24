@@ -17,26 +17,26 @@ type AJProvider (config : TypeProviderConfig) as this =
     let namespace_ = "BigCitiesHealth"
     let assembly = Assembly.GetExecutingAssembly()
     
-    let categories = query {for i in healthRecords do 
-                            select i.IndicatorCategory 
-                            distinct}
+    let categorysNames = query {for i in healthRecords do 
+                                    select i.IndicatorCategory 
+                                    distinct}
 
     let makeCategoryType (categoryName: string) =
-        let categorie = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
+        let category = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
     
-        let indicators = query {for i in healthRecords do
-                                where (i.IndicatorCategory = categoryName)}
+        let categoryData = query {for i in healthRecords do
+                                    where (i.IndicatorCategory = categoryName)}
         
-        let indicatorNames = query {for i in indicators do
+        let indicatorNames = query {for i in categoryData do
                                     select i.Indicator 
                                     distinct}
         
         for iName in indicatorNames do
-            let cityNames = query {for i in indicators do
+            let cityNames = query {for i in categoryData do
                                             select i.Place 
                                             distinct}
             for cityName in cityNames do
-                categorie.AddMembersDelayed(fun () -> 
+                category.AddMembersDelayed(fun () -> 
                     let indicator = ProvidedTypeDefinition(iName, Some typeof<obj>)                
                     indicator.AddMembersDelayed (fun () -> 
                         let city = ProvidedTypeDefinition(cityName, Some typeof<obj>)                
@@ -53,9 +53,9 @@ type AJProvider (config : TypeProviderConfig) as this =
                         [city])
                     [indicator])
         
-        categorie
+        category
 
-    let dataTypes = [for c in categories -> makeCategoryType c]
+    let dataTypes = [for c in categorysNames -> makeCategoryType c]
     do this.AddNamespace(namespace_, dataTypes)
 
 [<assembly:TypeProviderAssembly>]
