@@ -1,5 +1,4 @@
 ﻿module AJ05044.TypeProvider
-
 open FSharp.Data
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
@@ -16,46 +15,34 @@ type AJProvider (config : TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces ()
     let namespace_ = "BigCitiesHealth"
     let assembly = Assembly.GetExecutingAssembly()
+    let categoriesNames = query {for i in healthRecords do select i.IndicatorCategory } |> Seq.distinct
     
-    let categorysNames = query {for i in healthRecords do 
-                                    select i.IndicatorCategory 
-                                    distinct}
-
     let makeCategoryType (categoryName: string) =
         let category = ProvidedTypeDefinition(assembly, namespace_, categoryName, Some typeof<obj>)
-    
-        let categoryData = query {for i in healthRecords do
-                                    where (i.IndicatorCategory = categoryName)}
-        
-        let indicatorNames = query {for i in categoryData do
-                                    select i.Indicator 
-                                    distinct}
-        
-        for iName in indicatorNames do
-            let cityNames = query {for i in categoryData do
-                                            select i.Place 
-                                            distinct}
-            for cityName in cityNames do
+        let categoryData = query {for i in healthRecords do where (i.IndicatorCategory = categoryName)}
+        let indicatorsNames = query {for i in categoryData do select i.Indicator} |> Seq.distinct
+        for indicatorName in indicatorsNames do
+            let citiesNames = query {for i in categoryData do select i.Place} |> Seq.distinct
+            for cityName in citiesNames do
                 category.AddMembersDelayed(fun () -> 
-                    let indicator = ProvidedTypeDefinition(iName, Some typeof<obj>)                
+                    let indicator = ProvidedTypeDefinition(indicatorName, Some typeof<obj>)                
                     indicator.AddMembersDelayed (fun () -> 
                         let city = ProvidedTypeDefinition(cityName, Some typeof<obj>)                
                         city.AddMembersDelayed (fun () -> 
-                            let indicatorValue = 
-                                let iValue = "indicator value"
-                                let p = ProvidedProperty(
-                                            propertyName = "Value", 
-                                            propertyType = typeof<string>, 
-                                            IsStatic=true,
-                                            GetterCode= (fun args -> <@@ iValue @@>))
-                                p
-                            [indicatorValue])
+                            let measurement = 
+                                let value = "measurement value"
+                                let property = ProvidedProperty(
+                                                propertyName = "Measurement", 
+                                                propertyType = typeof<string>, 
+                                                IsStatic=true,
+                                                GetterCode= (fun args -> <@@ value @@>))
+                                property
+                            [measurement])
                         [city])
                     [indicator])
-        
         category
 
-    let dataTypes = [for c in categorysNames -> makeCategoryType c]
+    let dataTypes = [for c in categoriesNames -> makeCategoryType c]
     do this.AddNamespace(namespace_, dataTypes)
 
 [<assembly:TypeProviderAssembly>]
