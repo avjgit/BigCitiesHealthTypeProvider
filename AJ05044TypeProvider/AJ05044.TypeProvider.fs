@@ -40,8 +40,8 @@ type AJProvider (config : TypeProviderConfig) as this =
                                         let gender = ProvidedTypeDefinition(genderName, Some typeof<obj>)           
                                         let genderData = yearData |> Seq.filter (fun r -> r.Gender = genderName)
                                         let racesNames = query {for i in genderData do select i.RaceEthnicity} |> Seq.distinct
-                                        for racesName in gendersNames do
-                                            year.AddMembersDelayed (fun () ->  
+                                        for racesName in racesNames do
+                                            gender.AddMembersDelayed (fun () ->  
                                                 let measurement = 
                                                     let value = "measurement value"
                                                     let property = ProvidedProperty(
